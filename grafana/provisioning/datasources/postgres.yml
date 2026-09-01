@@ -1,0 +1,18 @@
+apiVersion: 1
+
+datasources:
+  - name: postgresql-db
+    uid: twitch-postgresql
+    type: postgres
+    access: proxy
+    url: ${DB_IP}:${DB_PORT}
+    user: ${GRAFANA_DB_USER}
+
+    secureJsonData:
+      password: ${GRAFANA_DB_PASSWORD}
+
+    jsonData:
+      database: twitch_analytics
+      sslmode: disable
+
+    isDefault: true

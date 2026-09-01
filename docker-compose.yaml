@@ -1,0 +1,43 @@
+services:
+  postgres:
+    image: postgres:18
+    container_name: twitch-postgres
+
+    environment:
+      POSTGRES_DB: ${DB_NAME}
+      POSTGRES_USER: ${DB_USER}
+      POSTGRES_PASSWORD: ${DB_PASSWORD}
+
+    ports:
+      - "${DB_PORT}:${DB_PORT}"
+
+    volumes:
+      - postgres_data:/var/lib/postgresql
+      - ./db_schema/init.sql:/docker-entrypoint-initdb.d/init.sql:ro
+
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${DB_USER} -d ${DB_NAME}"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  grafana:
+    image: grafana/grafana:latest
+    container_name: twitch-grafana
+    ports:
+      - "3000:3000"
+    depends_on:
+      - postgres
+    environment:
+      GRAFANA_DB_USER: ${DB_USER}
+      GRAFANA_DB_PASSWORD: ${DB_PASSWORD}
+      DB_IP: ${DB_IP}
+      DB_PORT: ${DB_PORT}
+    volumes:
+      - grafana_data:/var/lib/grafana
+      - ./grafana/provisioning:/etc/grafana/provisioning:ro
+      - ./grafana/dashboards:/etc/grafana/dashboards:ro
+
+volumes:
+  postgres_data:
+  grafana_data:

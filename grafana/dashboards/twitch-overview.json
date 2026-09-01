@@ -1,0 +1,320 @@
+{
+  "apiVersion": "dashboard.grafana.app/v2",
+  "kind": "Dashboard",
+  "metadata": {
+    "name": "adzqt2g",
+    "namespace": "default",
+    "uid": "ab4c7bbd-922e-4bdd-b5d3-927e95bc942c",
+    "resourceVersion": "1788177343903018",
+    "generation": 7,
+    "creationTimestamp": "2026-08-31T07:57:29Z",
+    "labels": {
+      "grafana.app/deprecatedInternalID": "159699832942592"
+    },
+    "annotations": {
+      "grafana.app/createdBy": "user:dfwtidyydjzlsd",
+      "grafana.app/saved-from-ui": "Grafana v13.2.0 (f681b1359f)",
+      "grafana.app/updatedBy": "user:dfwtidyydjzlsd",
+      "grafana.app/updatedTimestamp": "2026-08-31T11:55:43Z"
+    }
+  },
+  "spec": {
+    "annotations": [
+      {
+        "kind": "AnnotationQuery",
+        "spec": {
+          "query": {
+            "kind": "DataQuery",
+            "group": "grafana",
+            "version": "v0",
+            "datasource": {
+              "name": "-- Grafana --"
+            },
+            "spec": {}
+          },
+          "enable": true,
+          "hide": true,
+          "iconColor": "rgba(0, 211, 255, 1)",
+          "name": "Annotations & Alerts",
+          "builtIn": true
+        }
+      }
+    ],
+    "cursorSync": "Off",
+    "editable": true,
+    "elements": {
+      "panel-1": {
+        "kind": "Panel",
+        "spec": {
+          "id": 1,
+          "title": "New panel",
+          "description": "",
+          "links": [],
+          "data": {
+            "kind": "QueryGroup",
+            "spec": {
+              "queries": [
+                {
+                  "kind": "PanelQuery",
+                  "spec": {
+                    "query": {
+                      "kind": "DataQuery",
+                      "group": "grafana-postgresql-datasource",
+                      "version": "v0",
+                      "datasource": {
+                        "name": "${datasource}"
+                      },
+                      "spec": {
+                        "dataset": "twitch_analytics",
+                        "editorMode": "builder",
+                        "format": "time_series",
+                        "rawQuery": true,
+                        "rawSql": "SELECT message_count AS \"value\", start_window AS \"time\", channel_name AS \"metric\" FROM messages_per_minute GROUP BY channel_id, start_window ORDER BY start_window ASC ",
+                        "sql": {
+                          "columns": [
+                            {
+                              "alias": "\"value\"",
+                              "parameters": [
+                                {
+                                  "name": "message_count",
+                                  "type": "functionParameter"
+                                }
+                              ],
+                              "type": "function"
+                            },
+                            {
+                              "alias": "\"time\"",
+                              "parameters": [
+                                {
+                                  "name": "start_window",
+                                  "type": "functionParameter"
+                                }
+                              ],
+                              "type": "function"
+                            },
+                            {
+                              "alias": "\"metric\"",
+                              "parameters": [
+                                {
+                                  "name": "channel_name",
+                                  "type": "functionParameter"
+                                }
+                              ],
+                              "type": "function"
+                            }
+                          ],
+                          "groupBy": [
+                            {
+                              "property": {
+                                "name": "channel_id",
+                                "type": "string"
+                              },
+                              "type": "groupBy"
+                            },
+                            {
+                              "property": {
+                                "name": "start_window",
+                                "type": "string"
+                              },
+                              "type": "groupBy"
+                            }
+                          ],
+                          "orderBy": {
+                            "property": {
+                              "name": "start_window",
+                              "type": "string"
+                            },
+                            "type": "property"
+                          },
+                          "orderByDirection": "ASC",
+                          "whereJsonTree": {
+                            "children1": [
+                              {
+                                "id": "ab8bb9a9-cdef-4012-b456-71a056cb70fa",
+                                "properties": {
+                                  "field": "channel_id",
+                                  "fieldSrc": "field",
+                                  "operator": "equal",
+                                  "value": [
+                                    null
+                                  ],
+                                  "valueSrc": [
+                                    "value"
+                                  ],
+                                  "valueType": [
+                                    "number"
+                                  ]
+                                },
+                                "type": "rule"
+                              }
+                            ],
+                            "id": "b9abba98-0123-4456-b89a-b1a056a88d3e",
+                            "type": "group"
+                          }
+                        },
+                        "table": "messages_per_minute"
+                      }
+                    },
+                    "refId": "A",
+                    "hidden": false
+                  }
+                }
+              ],
+              "transformations": [],
+              "queryOptions": {}
+            }
+          },
+          "vizConfig": {
+            "kind": "VizConfig",
+            "group": "timeseries",
+            "version": "13.2.0",
+            "spec": {
+              "options": {
+                "legend": {
+                  "calcs": [],
+                  "displayMode": "list",
+                  "placement": "bottom",
+                  "showLegend": true
+                },
+                "tooltip": {
+                  "hideZeros": false,
+                  "mode": "single",
+                  "sort": "none"
+                }
+              },
+              "fieldConfig": {
+                "defaults": {
+                  "thresholds": {
+                    "mode": "absolute",
+                    "steps": [
+                      {
+                        "value": 0,
+                        "color": "green"
+                      },
+                      {
+                        "value": 80,
+                        "color": "red"
+                      }
+                    ]
+                  },
+                  "color": {
+                    "mode": "palette-classic"
+                  },
+                  "custom": {
+                    "axisBorderShow": false,
+                    "axisCenteredZero": false,
+                    "axisColorMode": "text",
+                    "axisLabel": "",
+                    "axisPlacement": "auto",
+                    "barAlignment": 0,
+                    "barWidthFactor": 0.6,
+                    "drawStyle": "line",
+                    "fillOpacity": 0,
+                    "gradientMode": "none",
+                    "hideFrom": {
+                      "legend": false,
+                      "tooltip": false,
+                      "viz": false
+                    },
+                    "insertNulls": false,
+                    "lineInterpolation": "linear",
+                    "lineWidth": 1,
+                    "pointSize": 5,
+                    "scaleDistribution": {
+                      "type": "linear"
+                    },
+                    "showPoints": "auto",
+                    "showValues": false,
+                    "spanNulls": false,
+                    "stacking": {
+                      "group": "A",
+                      "mode": "none"
+                    },
+                    "thresholdsStyle": {
+                      "mode": "off"
+                    }
+                  }
+                },
+                "overrides": []
+              }
+            }
+          }
+        }
+      }
+    },
+    "layout": {
+      "kind": "GridLayout",
+      "spec": {
+        "items": [
+          {
+            "kind": "GridLayoutItem",
+            "spec": {
+              "x": 0,
+              "y": 0,
+              "width": 24,
+              "height": 12,
+              "element": {
+                "kind": "ElementReference",
+                "name": "panel-1"
+              }
+            }
+          }
+        ]
+      }
+    },
+    "links": [],
+    "liveNow": false,
+    "preload": false,
+    "tags": [],
+    "timeSettings": {
+      "timezone": "utc",
+      "from": "2026-08-31T15:33:00.000Z",
+      "to": "2026-08-31T15:57:00.000Z",
+      "autoRefresh": "",
+      "autoRefreshIntervals": [
+        "5s",
+        "10s",
+        "30s",
+        "1m",
+        "5m",
+        "15m",
+        "30m",
+        "1h",
+        "2h",
+        "1d"
+      ],
+      "hideTimepicker": false,
+      "fiscalYearStartMonth": 0
+    },
+    "title": "New dashboard",
+    "variables": [
+      {
+        "kind": "DatasourceVariable",
+        "spec": {
+          "name": "datasource",
+          "pluginId": "grafana-postgresql-datasource",
+          "refresh": "onDashboardLoad",
+          "regex": "",
+          "current": {
+            "text": "grafana-postgresql-datasource",
+            "value": "efwtix9qjtp8gf"
+          },
+          "options": [],
+          "multi": false,
+          "includeAll": false,
+          "hide": "dontHide",
+          "skipUrlSync": false,
+          "allowCustomValue": true
+        }
+      }
+    ],
+    "preferences": {
+      "layout": {
+        "kind": "GridLayout",
+        "spec": {
+          "items": []
+        }
+      }
+    }
+  }
+}
