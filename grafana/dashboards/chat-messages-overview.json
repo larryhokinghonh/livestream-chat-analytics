@@ -4,18 +4,24 @@
   "metadata": {
     "name": "adkvgf7",
     "namespace": "default",
-    "uid": "653a4d22-8c28-4256-8512-d4151cf89e59",
-    "resourceVersion": "1789038369987988",
-    "generation": 9,
-    "creationTimestamp": "2026-09-10T10:26:31Z",
+    "uid": "efed9337-91fc-4896-aec2-387b66efb2ce",
+    "resourceVersion": "1789116483842991",
+    "generation": 2,
+    "creationTimestamp": "2026-09-11T08:21:50Z",
     "labels": {
-      "grafana.app/deprecatedInternalID": "3552501497745408"
+      "grafana.app/deprecatedInternalID": "4152309062402048"
     },
     "annotations": {
-      "grafana.app/createdBy": "user:cfxquvamprh1ce",
+      "grafana.app/createdBy": "access-policy:service",
+      "grafana.app/managedBy": "classic-file-provisioning",
+      "grafana.app/managerAllowsEdits": "true",
+      "grafana.app/managerId": "Twitch Analytics",
       "grafana.app/saved-from-ui": "Grafana v13.2.0 (f681b1359f)",
-      "grafana.app/updatedBy": "user:cfxquvamprh1ce",
-      "grafana.app/updatedTimestamp": "2026-09-10T11:06:09Z"
+      "grafana.app/sourceChecksum": "ecf2a5adafe62aef887bf953d241b3d4",
+      "grafana.app/sourcePath": "/etc/grafana/dashboards/chat-messages-overview.json",
+      "grafana.app/sourceTimestamp": "1789038431000",
+      "grafana.app/updatedBy": "user:bfxwyj11s35s0e",
+      "grafana.app/updatedTimestamp": "2026-09-11T08:48:03Z"
     }
   },
   "spec": {
@@ -154,7 +160,7 @@
               "x": 0,
               "y": 0,
               "width": 24,
-              "height": 16,
+              "height": 9,
               "element": {
                 "kind": "ElementReference",
                 "name": "panel-1"

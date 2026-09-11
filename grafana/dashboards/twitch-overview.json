@@ -4,24 +4,24 @@
   "metadata": {
     "name": "adzqt2g",
     "namespace": "default",
-    "uid": "ab4c7bbd-922e-4bdd-b5d3-927e95bc942c",
-    "resourceVersion": "1788643471189002",
-    "generation": 17,
-    "creationTimestamp": "2026-08-31T07:57:29Z",
+    "uid": "1a617e28-240a-45d8-814e-8a3470c6c3fc",
+    "resourceVersion": "1789116833207984",
+    "generation": 5,
+    "creationTimestamp": "2026-09-11T08:21:50Z",
     "labels": {
-      "grafana.app/deprecatedInternalID": "159699832942592"
+      "grafana.app/deprecatedInternalID": "4152309163065344"
     },
     "annotations": {
-      "grafana.app/createdBy": "user:dfwtidyydjzlsd",
+      "grafana.app/createdBy": "access-policy:service",
       "grafana.app/managedBy": "classic-file-provisioning",
       "grafana.app/managerAllowsEdits": "true",
       "grafana.app/managerId": "Twitch Analytics",
       "grafana.app/saved-from-ui": "Grafana v13.2.0 (f681b1359f)",
-      "grafana.app/sourceChecksum": "53adbd49d85fbc895238c3e94ec7939a",
+      "grafana.app/sourceChecksum": "0c9bbdb1b223259cb0bf257579544693",
       "grafana.app/sourcePath": "/etc/grafana/dashboards/twitch-overview.json",
-      "grafana.app/sourceTimestamp": "1788177388000",
-      "grafana.app/updatedBy": "user:dfwtidyydjzlsd",
-      "grafana.app/updatedTimestamp": "2026-09-05T21:24:31Z"
+      "grafana.app/sourceTimestamp": "1788643580000",
+      "grafana.app/updatedBy": "user:bfxwyj11s35s0e",
+      "grafana.app/updatedTimestamp": "2026-09-11T08:53:53Z"
     }
   },
   "spec": {
@@ -72,7 +72,7 @@
                       },
                       "spec": {
                         "dataset": "twitch_analytics",
-                        "editorMode": "builder",
+                        "editorMode": "code",
                         "format": "time_series",
                         "rawQuery": true,
                         "rawSql": "SELECT message_count AS \"value\", start_window AS \"time\", channel_name AS \"metric\" FROM messages_per_minute GROUP BY channel_id, start_window ORDER BY start_window ASC ",
@@ -441,6 +441,200 @@
           },
           "transparent": true
         }
+      },
+      "panel-5": {
+        "kind": "Panel",
+        "spec": {
+          "id": 5,
+          "title": "New panel",
+          "description": "",
+          "links": [],
+          "data": {
+            "kind": "QueryGroup",
+            "spec": {
+              "queries": [
+                {
+                  "kind": "PanelQuery",
+                  "spec": {
+                    "query": {
+                      "kind": "DataQuery",
+                      "group": "grafana-postgresql-datasource",
+                      "version": "v0",
+                      "datasource": {
+                        "name": "${datasource}"
+                      },
+                      "spec": {
+                        "dataset": "twitch_analytics",
+                        "editorMode": "code",
+                        "format": "time_series",
+                        "rawQuery": true,
+                        "rawSql": "SELECT message_count AS \"value\", start_window AS \"time\", channel_name AS \"metric\" FROM messages_every_five_seconds GROUP BY channel_id, start_window ORDER BY start_window ASC ",
+                        "sql": {
+                          "columns": [
+                            {
+                              "alias": "\"value\"",
+                              "parameters": [
+                                {
+                                  "name": "message_count",
+                                  "type": "functionParameter"
+                                }
+                              ],
+                              "type": "function"
+                            },
+                            {
+                              "alias": "\"time\"",
+                              "parameters": [
+                                {
+                                  "name": "start_window",
+                                  "type": "functionParameter"
+                                }
+                              ],
+                              "type": "function"
+                            },
+                            {
+                              "alias": "\"metric\"",
+                              "parameters": [
+                                {
+                                  "name": "channel_name",
+                                  "type": "functionParameter"
+                                }
+                              ],
+                              "type": "function"
+                            }
+                          ],
+                          "groupBy": [
+                            {
+                              "property": {
+                                "name": "channel_id",
+                                "type": "string"
+                              },
+                              "type": "groupBy"
+                            },
+                            {
+                              "property": {
+                                "name": "start_window",
+                                "type": "string"
+                              },
+                              "type": "groupBy"
+                            }
+                          ],
+                          "orderBy": {
+                            "property": {
+                              "name": "start_window",
+                              "type": "string"
+                            },
+                            "type": "property"
+                          },
+                          "orderByDirection": "ASC",
+                          "whereJsonTree": {
+                            "children1": [
+                              {
+                                "id": "ab8bb9a9-cdef-4012-b456-71a056cb70fa",
+                                "properties": {
+                                  "field": "channel_id",
+                                  "fieldSrc": "field",
+                                  "operator": "equal",
+                                  "value": [
+                                    null
+                                  ],
+                                  "valueSrc": [
+                                    "value"
+                                  ],
+                                  "valueType": [
+                                    "number"
+                                  ]
+                                },
+                                "type": "rule"
+                              }
+                            ],
+                            "id": "b9abba98-0123-4456-b89a-b1a056a88d3e",
+                            "type": "group"
+                          }
+                        },
+                        "table": "messages_per_minute"
+                      }
+                    },
+                    "refId": "A",
+                    "hidden": false
+                  }
+                }
+              ],
+              "transformations": [],
+              "queryOptions": {}
+            }
+          },
+          "vizConfig": {
+            "kind": "VizConfig",
+            "group": "timeseries",
+            "version": "13.2.0",
+            "spec": {
+              "options": {
+                "legend": {
+                  "calcs": [],
+                  "displayMode": "list",
+                  "placement": "bottom",
+                  "showLegend": true
+                },
+                "tooltip": {
+                  "hideZeros": false,
+                  "mode": "single",
+                  "sort": "none"
+                }
+              },
+              "fieldConfig": {
+                "defaults": {
+                  "thresholds": {
+                    "mode": "absolute",
+                    "steps": [
+                      {
+                        "value": 0,
+                        "color": "green"
+                      }
+                    ]
+                  },
+                  "color": {
+                    "mode": "palette-classic"
+                  },
+                  "custom": {
+                    "axisBorderShow": false,
+                    "axisCenteredZero": false,
+                    "axisColorMode": "text",
+                    "axisLabel": "",
+                    "axisPlacement": "auto",
+                    "barAlignment": 0,
+                    "barWidthFactor": 0.6,
+                    "drawStyle": "line",
+                    "fillOpacity": 0,
+                    "gradientMode": "none",
+                    "hideFrom": {
+                      "legend": false,
+                      "tooltip": false,
+                      "viz": false
+                    },
+                    "insertNulls": false,
+                    "lineInterpolation": "linear",
+                    "lineWidth": 1,
+                    "pointSize": 5,
+                    "scaleDistribution": {
+                      "type": "linear"
+                    },
+                    "showPoints": "auto",
+                    "showValues": false,
+                    "spanNulls": false,
+                    "stacking": {
+                      "group": "A",
+                      "mode": "none"
+                    },
+                    "thresholdsStyle": {
+                      "mode": "off"
+                    }
+                  }
+                },
+                "overrides": []
+              }
+            }
+          }
+        }
       }
     },
     "layout": {
@@ -465,6 +659,19 @@
             "spec": {
               "x": 0,
               "y": 12,
+              "width": 24,
+              "height": 12,
+              "element": {
+                "kind": "ElementReference",
+                "name": "panel-5"
+              }
+            }
+          },
+          {
+            "kind": "GridLayoutItem",
+            "spec": {
+              "x": 0,
+              "y": 24,
               "width": 15,
               "height": 7,
               "element": {
@@ -477,7 +684,7 @@
             "kind": "GridLayoutItem",
             "spec": {
               "x": 15,
-              "y": 12,
+              "y": 24,
               "width": 9,
               "height": 7,
               "element": {

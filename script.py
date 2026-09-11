@@ -101,6 +101,18 @@ messages_per_minute = (
     .count()
 )
 
+messages_every_five_seconds = (
+    parsed
+    .withWatermark("event_time", "30 seconds")
+    .groupBy(
+        window(col("event_time"), "5 seconds"),
+        col("channel_id"),
+        col("channel_name"),
+        col("stream_id")
+    )
+    .count()
+)
+
 query = (
     messages_per_minute
     .writeStream
@@ -130,6 +142,18 @@ chat_messages_per_min_query = (
     .option(
         "checkpointLocation",
         "./runtime/spark/checkpoints/messages_per_minute"
+    )
+    .start()
+)
+
+chat_messages_every_five_seconds = (
+    messages_every_five_seconds
+    .writeStream
+    .outputMode("update")
+    .foreachBatch(db.store_chat_messages_every_five_seconds)
+    .option(
+        "checkpointLocation",
+        "./runtime/spark/checkpoints/messages_every_five_seconds"
     )
     .start()
 )
