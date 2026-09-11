@@ -225,3 +225,6 @@ runtime
 
 # Misc
 db_schema
+
+# Agent
+.agents
