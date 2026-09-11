@@ -14,6 +14,7 @@ from pyspark.sql.functions import col, from_json, to_timestamp, window
 from pyspark.sql.types import (StructType, StructField, StringType)
 
 from contextlib import AsyncExitStack
+from websockets.exceptions import ConnectionClosed
 
 load_dotenv()
 
@@ -449,92 +450,108 @@ async def main():
 
     asyncio.create_task(monitor_online_streams(broadcaster_ids.values()))
 
-    async with AsyncExitStack() as connections:
-        websocket = await connections.enter_async_context(
-            websockets.connect(EVENTSUB_URL)
-        )
+    retry_delay = 1
+    loop = asyncio.get_running_loop()
 
-        while True:
-            raw_message = await websocket.recv()
-            message = json.loads(raw_message)
-            message_type = message["metadata"]["message_type"]
+    while True:
+        started_at = loop.time()
 
-            if message_type == "session_welcome":
-                session_id = message["payload"]["session"]["id"]
-
-                print("Connected!")
-                # print("Session:", session_id)
-
-                for broadcaster_username, broadcaster_id in broadcaster_ids.items():
-                    await create_stream_chat_subscription(broadcaster_id, broadcaster_username, session_id)
-
-            elif message_type == "notification":
-                subscription_type = (message["metadata"]["subscription_type"])
-                event = message["payload"]["event"]
-                event_timestamp = message["metadata"]["message_timestamp"]
-
-                if subscription_type == "channel.chat.message":
-                    # print(event["message"]["fragments"][0]["emote"], event["message"]["fragments"][0]["mention"])
-
-                    if event["message"]["fragments"][0]["emote"]:
-                        print(event["message"]["text"])
-
-
-                    chat_event = {
-                        "event_id": event["message_id"],
-                        "channel_id": event["broadcaster_user_id"],
-                        "channel_name": event["broadcaster_user_name"],
-                        "stream_id": ONLINE_STREAMS.get(event["broadcaster_user_id"], {}).get("stream_id"),
-                        "user_id": event["chatter_user_id"],
-                        "username": event["chatter_user_name"],
-                        "text": event["message"]["text"],
-                        "timestamp": event_timestamp
-                    }
-
-                    producer.produce(
-                        topic="twitch-chat",
-                        value=json.dumps(chat_event).encode("utf-8")
+        try:
+            async with AsyncExitStack() as connections:
+                websocket = await connections.enter_async_context(
+                    websockets.connect(
+                        EVENTSUB_URL,
+                        open_timeout=10,
+                        close_timeout=5
                     )
+                )
 
-                    producer.poll(0)
+                while True:
+                    raw_message = await websocket.recv()
+                    message = json.loads(raw_message)
+                    message_type = message["metadata"]["message_type"]
 
-                    # channel_name = chat_event["channel_name"]
-                    # username = chat_event["username"]
-                    # text = chat_event["text"]
+                    if message_type == "session_welcome":
+                        session_id = message["payload"]["session"]["id"]
 
-                    # print(f"[{channel_name}] - {username}: {text}")
+                        print("Connected!")
+                        # print("Session:", session_id)
 
-            elif message_type == "session_keepalive":
-                print("keepalive")
-            elif message_type == "session_reconnect":
-                reconnect_url = (message["payload"]["session"]["reconnect_url"])
-                old_websocket = websocket
+                        for broadcaster_username, broadcaster_id in broadcaster_ids.items():
+                            await create_stream_chat_subscription(broadcaster_id, broadcaster_username, session_id)
 
-                print("Twitch requested reconnect, opening replacement connection...")
+                    elif message_type == "notification":
+                        subscription_type = (message["metadata"]["subscription_type"])
+                        event = message["payload"]["event"]
+                        event_timestamp = message["metadata"]["message_timestamp"]
 
-                # Establishing new connection, meeting Twitch's 30-second handoff window requirement
-                async with asyncio.timeout(20):
-                    new_websocket = await connections.enter_async_context(
-                        websockets.connect(
-                            reconnect_url,
-                            open_timeout=10,
-                            close_timeout=5
-                        )
-                    )
+                        if subscription_type == "channel.chat.message":
+                            # print(event["message"]["fragments"][0]["emote"], event["message"]["fragments"][0]["mention"])
 
-                    raw_welcome_message = await new_websocket.recv()
-                    welcome_message = json.loads(raw_welcome_message)
+                            # if event["message"]["fragments"][0]["emote"]:
+                            #     print(event["message"]["text"])
 
-                    if welcome_message["metadata"]["message_type"] != "session_welcome":
-                        raise RuntimeError("Expeceted session_welcome on replacement connection.")
+                            chat_event = {
+                                "event_id": event["message_id"],
+                                "channel_id": event["broadcaster_user_id"],
+                                "channel_name": event["broadcaster_user_name"],
+                                "stream_id": ONLINE_STREAMS.get(event["broadcaster_user_id"], {}).get("stream_id"),
+                                "user_id": event["chatter_user_id"],
+                                "username": event["chatter_user_name"],
+                                "text": event["message"]["text"],
+                                "timestamp": event_timestamp
+                            }
 
-                websocket = new_websocket
-                session_id = welcome_message["payload"]["session"]["id"]
+                            producer.produce(
+                                topic="twitch-chat",
+                                value=json.dumps(chat_event).encode("utf-8")
+                            )
 
-                await old_websocket.close()
+                            producer.poll(0)
 
-                print("Reconnect completed.")
+                            # channel_name = chat_event["channel_name"]
+                            # username = chat_event["username"]
+                            # text = chat_event["text"]
 
+                            # print(f"[{channel_name}] - {username}: {text}")
+
+                    elif message_type == "session_keepalive":
+                        print("keepalive")
+                    elif message_type == "session_reconnect":
+                        reconnect_url = (message["payload"]["session"]["reconnect_url"])
+                        old_websocket = websocket
+
+                        print("Twitch requested reconnect, opening replacement connection...")
+
+                        # Establishing new connection, meeting Twitch's 30-second handoff window requirement
+                        async with asyncio.timeout(20):
+                            new_websocket = await connections.enter_async_context(
+                                websockets.connect(
+                                    reconnect_url,
+                                    open_timeout=10,
+                                    close_timeout=5
+                                )
+                            )
+
+                            raw_welcome_message = await new_websocket.recv()
+                            welcome_message = json.loads(raw_welcome_message)
+
+                            if welcome_message["metadata"]["message_type"] != "session_welcome":
+                                raise RuntimeError("Expeceted session_welcome on replacement connection.")
+
+                        websocket = new_websocket
+                        session_id = welcome_message["payload"]["session"]["id"]
+
+                        await old_websocket.close()
+                        print("Reconnect completed.")
+        except (ConnectionClosed, OSError, TimeoutError) as e:
+            if loop.time() - started_at >= 60:
+                retry_delay = 1
+
+            print(f"EventSub WebSocket connection failed: {e}. Attempting to reconnect in {retry_delay} seconds.")
+
+            await asyncio.sleep(retry_delay)
+            retry_delay = min(retry_delay * 2, 60)
 
 try:
     asyncio.run(main())
@@ -543,4 +560,5 @@ finally:
     query.stop()
     chat_message_query.stop()
     chat_messages_per_min_query.stop()
+    chat_messages_every_five_seconds.stop()
     spark.stop()
