@@ -1,1 +1,3 @@
-En-route to become a good data engineer. Busy building this project, will populate the README in the future.
+# Pipeline Architecture
+
+![Current Pipeline Architecture](img/current-architecture.png)
